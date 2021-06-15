@@ -1,69 +1,69 @@
-import java.awt.EventQueue;
+package fr.uge.todo;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.json.JsonWriter;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JList;
-import javax.swing.BoxLayout;
-import java.awt.FlowLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import java.awt.GridLayout;
 
 public class ToDo extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1523453941890958827L;
 	private JTextField txtTask;
 	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ToDo frame = new ToDo();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+
 
 	/**
 	 * Create the frame.
 	 */
 	public ToDo() {
+		txtTask = new JTextField();
+		
+	}
+	
+	private void cleanAndAdd(String words, DefaultListModel<String> task, DefaultListModel<String> taskJson) {
+		String[] Tabwords = words.split(",");
+		for (String word : Tabwords) {
+        	if (word.substring(0,1).equals("[")) {
+        	//	word.(0);
+        		word = word.substring(1,word.length());
+        	}
+        	if (word.substring(word.length()-1,word.length()).equals("]")) {
+            	//	word.(0);
+            		word = word.substring(0,word.length()-1);
+            	}
+        	task.addElement(word);
+        	taskJson.addElement(word);
+        }
+		
+	}
+	
+	public void launch() {
 		DefaultListModel<String> task = new DefaultListModel<>();
 		DefaultListModel<String> taskJson = new DefaultListModel<>(); 
-		String words = ReadJson();
-		CleanAndAdd(words, task, taskJson);
-		
-		setTitle("ToDo List");
-		setBounds(100, 100, 450, 300);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+		String words = readJson();
+		this.cleanAndAdd(words, task, taskJson);
+		this.configureWindow();
+		this.createFrame(task, taskJson, words);
+	}
+	
+	private void createFrame(DefaultListModel<String> task, DefaultListModel<String> taskJson, String words) {	
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		this.setJMenuBar(menuBar);
 		
 		JButton btnSave = new JButton("Save");
 		btnSave.addActionListener(new ActionListener() {
@@ -78,7 +78,7 @@ public class ToDo extends JFrame {
 				//taskJson.addElement("false |"+txtTask.getText());
 				taskJson.addElement(txtTask.getText());
 				task.addElement(txtTask.getText());
-				AddList(taskJson);
+				addList(taskJson);
 				txtTask.setText("");
 			}
 		});
@@ -106,66 +106,46 @@ public class ToDo extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				taskJson.removeElementAt(list.getSelectedIndex());
 				task.remove(list.getSelectedIndex());
-				AddList(taskJson);
+				addList(taskJson);
 			}
 		});
 		getContentPane().add(btnDelete, BorderLayout.SOUTH);
 
 	}
 	
-	private void CleanAndAdd(String words, DefaultListModel<String> task, DefaultListModel<String> taskJson) {
-		String[] Tabwords = words.split(",");
-		for (String word : Tabwords) {
-        	if (word.substring(0,1).equals("[")) {
-        	//	word.(0);
-        		word = word.substring(1,word.length());
-        	}
-        	if (word.substring(word.length()-1,word.length()).equals("]")) {
-            	//	word.(0);
-            		word = word.substring(0,word.length()-1);
-            	}
-        	task.addElement(word);
-        	taskJson.addElement(word);
-        }
-		
+	private void configureWindow() {
+		this.setTitle("ToDo List");
+		this.setBounds(100, 100, 450, 300);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	void AddList(DefaultListModel<String> taskJson)
+	void addList(DefaultListModel<String> taskJson)
 	{
-		FileWriter fileWriter = null;
-		try 
+		try (FileWriter fileWriter = new FileWriter("list.json"))
 		{
-			fileWriter = new FileWriter("list.json");
 			JsonObject jsonObj = Json.createObjectBuilder()
 						.add("tasks", taskJson.toString())
 					.build();
 			JsonWriter writer = Json.createWriter(fileWriter);
 			writer.writeObject(jsonObj);
-			writer.close();
 		
 		}
-		catch(Exception e) 
-		{
-			JsonObject jsonObj = Json.createObjectBuilder()
-					.addNull("TaskList")
-						.add("tasks", taskJson.toString())
-					.build();
-			JsonWriter writer = Json.createWriter(fileWriter);
-			writer.writeObject(jsonObj);
-			writer.close();
+		catch(Exception e) {
+			return;
 		}
 	}
-	String ReadJson() 
-	{
+	
+	
+	String readJson() {
 		FileReader fileReader = null;
 		
-		try { fileReader = new FileReader("list.json"); }
-		catch(Exception e)
-		{
-			JOptionPane.showMessageDialog(null, "Il n'existe pas de fichier de sauvegarde.\n Un nouveau fichier va être créer");
+		try {
+			fileReader = new FileReader("list.json");
+		}catch(Exception e){
+			JOptionPane.showMessageDialog(null, "Il n'existe pas de fichier de tÃ¢che.\n Un nouveau fichier va ï¿½tre crï¿½er");
 		}
-		try
-		{
+		
+		try{
 			JsonReader reader = Json.createReader(fileReader);
 			JsonObject jsonObj = reader.readObject();
 			//String truc = jsonObj.getString("Task");//pb
@@ -177,7 +157,7 @@ public class ToDo extends JFrame {
 			return listTask.getElementAt(0);
 
 		}
-		catch(Exception e) // Sinon on affiche qu'il y a un probleme car le mot de passe n'est pas équivalent
+		catch(Exception e) 
 		{
 			JOptionPane.showMessageDialog(null, "Probleme de lecture");
 			dispose();

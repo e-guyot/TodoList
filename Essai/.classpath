@@ -6,6 +6,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/eguyot/eclipse-workspace/Login/src/javax.json-1.0.jar"/>
+	<classpathentry kind="lib" path="/home/etienne/Downloads/javax.json-api-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Login/src/javax.json-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
