@@ -162,7 +162,7 @@ public class ToDo extends JFrame {
 		try { fileReader = new FileReader("list.json"); }
 		catch(Exception e)
 		{
-			JOptionPane.showMessageDialog(null, "Il n'existe pas de fichier de sauvegarde.\n Un nouveau fichier va être créer");
+			JOptionPane.showMessageDialog(null, "Il n'existe pas de fichier de tÃ¢ches.\n Un nouveau fichier va Ãªtre crÃ©er");
 		}
 		try
 		{
@@ -177,7 +177,7 @@ public class ToDo extends JFrame {
 			return listTask.getElementAt(0);
 
 		}
-		catch(Exception e) // Sinon on affiche qu'il y a un probleme car le mot de passe n'est pas équivalent
+		catch(Exception e) 
 		{
 			JOptionPane.showMessageDialog(null, "Probleme de lecture");
 			dispose();
